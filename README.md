@@ -1,16 +1,55 @@
-# React + Vite
+# Менеджер задач с Redux
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Приложение для управления задачами, созданное с использованием React и Redux Toolkit.
 
-Currently, two official plugins are available:
+## Функциональность
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+-  Добавление задач с текстом и категорией
+-  Отметка задач как выполненных
+-  Удаление задач
+-  Поиск по тексту задачи
+-  Статистика по задачам (всего/активные/выполненные)
+-  Статистика по категориям
+-  Очистка всех выполненных задач
+-  Сохранение данных в localStorage
+-  Адаптивный дизайн
 
-## React Compiler
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Изменения в архитектуре
 
-## Expanding the ESLint configuration
+1. **Разделение логики и представления**:
+   - Вся бизнес-логика (добавление, удаление, изменение задач) вынесена в Redux
+   - Компоненты стали "глупыми" - они только отображают данные и диспатчат действия
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+2. **Централизованное состояние**:
+   - Состояние задач хранится в едином store
+   - Убран локальный useState для задач из компонентов
+   - Данные доступны из любого компонента без props drilling
+
+3. **Управление побочными эффектами**:
+   - Сохранение в localStorage перенесено в редьюсеры
+   - Автоматическое сохранение при каждом изменении состояния
+
+##  Redux сущности
+
+### Редьюсеры (tasksSlice.js)
+
+| Редьюсер | Описание | Action Creator |
+|----------|----------|----------------|
+| `addTask` | Добавляет новую задачу в список | `addTask({ text, category })` |
+| `toggleTask` | Переключает статус задачи (выполнено/не выполнено) | `toggleTask(id)` |
+| `deleteTask` | Удаляет задачу по id | `deleteTask(id)` |
+| `clearCompletedTasks` | Удаляет все выполненные задачи | `clearCompletedTasks()` |
+| `loadTasks` | Загружает задачи из localStorage | `loadTasks()` |
+
+### Селекторы (tasksSelectors.js)
+
+| Селектор | Возвращаемые данные | Использование |
+|----------|-------------------|---------------|
+| `selectAllTasks` | Все задачи | Получение полного списка |
+| `selectActiveTasks` | Только активные задачи | Фильтрация невыполненных |
+| `selectCompletedTasks` | Только выполненные задачи | Фильтрация выполненных |
+| `selectTasksCount` | Объект с количеством задач | Статистика |
+| `selectCategoriesStats` | Статистика по категориям | Группировка по категориям |
+| `selectFilteredTasks` | Отфильтрованные по поиску задачи | Поиск задач |
+
